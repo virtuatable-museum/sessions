@@ -28,7 +28,7 @@ class SessionsController < Sinatra::Base
       else
         expiration = @parameters['expiration'] || 3600
         session = account.sessions.create(token: SecureRandom.hex, expiration: expiration)
-        halt 201, {token: session.token, expiration: session.expiration}.to_json
+        halt 201, Decorators::Session.new(session).to_json
       end
     end
   end
