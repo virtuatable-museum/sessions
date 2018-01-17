@@ -4,7 +4,7 @@
 # @author Vincent Courtois <courtois.vincent@outlook.com>
 class SessionsController < Arkaan::Utils::Controller
 
-  post '/' do
+  declare_premium_route('post', '/') do
     check_presence('username', 'password')
 
     account = Arkaan::Account.where(username: params['username']).first
@@ -21,7 +21,7 @@ class SessionsController < Arkaan::Utils::Controller
     end
   end
 
-  get '/:id' do
+  declare_premium_route('get', '/') do
     session = Arkaan::Authentication::Session.where(token: params['id']).first
 
     if session.nil?
