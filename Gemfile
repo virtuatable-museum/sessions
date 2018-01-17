@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 group :development, :production, :test do
   gem 'sinatra', '2.0.0'     , require: 'sinatra/base'
   gem 'mongoid', '7.0.0.beta'
-  gem 'arkaan' , '0.6.10'
+  gem 'arkaan' , '0.7.14'
   gem 'draper' , '3.0.1'
 end
 

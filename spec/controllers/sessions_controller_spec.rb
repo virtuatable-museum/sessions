@@ -1,5 +1,10 @@
 RSpec.describe SessionsController do
 
+  before do
+    DatabaseCleaner.clean
+    create(:service)
+  end
+
   def app
     SessionsController.new
   end
@@ -10,10 +15,6 @@ RSpec.describe SessionsController do
   let!(:application) { create(:application, creator: account) }
 
   describe 'post /sessions' do
-
-    after do
-      DatabaseCleaner.clean
-    end
 
     describe 'nominal case' do
       before do

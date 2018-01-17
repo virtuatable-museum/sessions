@@ -1,6 +1,9 @@
 require 'bundler'
 Bundler.require(ENV['RACK_ENV'].to_sym || :development)
 
-micro_service = Arkaan::Utils::MicroService.new(name: 'sessions', root: File.dirname(__FILE__)).load!
+service = Arkaan::Utils::MicroService.instance
+  .register_as('sessions')
+  .from_location(__FILE__)
+  .in_standard_mode
 
-map(micro_service.registered_service.path) { run SessionsController.new }
+map(service.path) { run SessionsController.new }
