@@ -21,7 +21,7 @@ class SessionsController < Arkaan::Utils::Controller
     end
   end
 
-  declare_premium_route('get', '/') do
+  declare_premium_route('get', '/:id') do
     session = Arkaan::Authentication::Session.where(token: params['id']).first
 
     if session.nil?
