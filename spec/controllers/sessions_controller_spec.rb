@@ -188,7 +188,7 @@ RSpec.describe SessionsController do
 
     describe 'Nominal case, returns the correct session' do
       before do
-        get url, {app_key: 'test_key', token: 'test_token'}
+        get "#{url}?app_key=test_key&token=test_token"
       end
       it 'returns a 200 code when the route is correctly called' do
         expect(last_response.status).to be 200

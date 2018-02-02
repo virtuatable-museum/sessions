@@ -25,7 +25,7 @@ GEM
       i18n (~> 0.7)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    arkaan (0.7.15)
+    arkaan (0.7.22)
       activemodel (= 5.1.4)
       activesupport (= 5.1.4)
       bcrypt (= 3.1.11)
@@ -129,7 +129,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  arkaan (= 0.7.15)
+  arkaan (= 0.7.22)
   bcrypt (= 3.1.11)
   database_cleaner (= 1.6.1)
   draper (= 3.0.1)
