@@ -26,7 +26,6 @@ RSpec.describe SessionsController do
       describe 'response format' do
         let!(:session) { Arkaan::Authentication::Session.first }
         let!(:response_session) { JSON.parse(last_response.body) }
-        let!(:response_account) { response_session['account'] }
 
         it 'Returns the correct token for the created session' do
           expect(response_session['token']).to eq session.token
@@ -37,20 +36,8 @@ RSpec.describe SessionsController do
         it 'returns the right creation date for the created session' do
           expect(response_session['created_at']).to eq session.created_at.to_s
         end
-        it 'returns the correct username for the user linked to the session' do
-          expect(response_account['username']).to eq account.username
-        end
-        it 'returns the correct email for the user linked to the session' do
-          expect(response_account['email']).to eq account.email
-        end
-        it 'returns the correct last name for the user linked to the session' do
-          expect(response_account['lastname']).to eq account.lastname
-        end
-        it 'returns the correct first name for the user linked to the session' do
-          expect(response_account['firstname']).to eq account.firstname
-        end
-        it 'returns the correct birth date for the user linked to the session' do
-          expect(response_account['birthdate']).to eq account.birthdate
+        it 'returns the correct account ID for the user linked to the session' do
+          expect(response_session['account_id']).to eq account.id.to_s
         end
       end
     end
@@ -195,7 +182,6 @@ RSpec.describe SessionsController do
       end
       describe 'Response body parameters' do
         let!(:body) { JSON.parse(last_response.body) rescue {} }
-        let!(:response_account) { body['account'] }
 
         it 'returns the right token for the session' do
           expect(body['token']).to eq 'session_token'
@@ -206,20 +192,8 @@ RSpec.describe SessionsController do
         it 'returns the right creation date for the session' do
           expect(body['created_at']).to eq session.created_at.to_s
         end
-        it 'returns the correct username for the user linked to the session' do
-          expect(response_account['username']).to eq account.username
-        end
-        it 'returns the correct email for the user linked to the session' do
-          expect(response_account['email']).to eq account.email
-        end
-        it 'returns the correct last name for the user linked to the session' do
-          expect(response_account['lastname']).to eq account.lastname
-        end
-        it 'returns the correct first name for the user linked to the session' do
-          expect(response_account['firstname']).to eq account.firstname
-        end
-        it 'returns the correct birth date for the user linked to the session' do
-          expect(response_account['birthdate']).to eq account.birthdate
+        it 'returns the correct account ID for the user linked to the session' do
+          expect(body['account_id']).to eq account.id.to_s
         end
       end
     end
