@@ -49,29 +49,10 @@ RSpec.describe SessionsController do
         expect(JSON.parse(last_response.body)['expiration']).to be 1000
       end
     end
+
+    it_should_behave_like 'a route', 'post', '/'
+
     describe 'bad request errors' do
-      describe 'empty body error' do
-        before do
-          post '/'
-        end
-        it 'Raises a bad request (400) error when the body is empty' do
-          expect(last_response.status).to be 400
-        end
-        it 'returns the correct response if the body is empty' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'bad_request'})
-        end
-      end
-      describe 'no token error' do
-        before do
-          post '/', {username: 'Babausse', password: 'password', app_key: 'test_key'}.to_json
-        end
-        it 'Raises a bad request (400) error when the body doesn\'t contain the token of the gateway' do
-          expect(last_response.status).to be 400
-        end
-        it 'returns the correct response if the body does not contain a gateway token' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'bad_request'})
-        end
-      end
       describe 'no username error' do
         before do
           post '/', {token: 'test_token', password: 'password', app_key: 'test_key'}.to_json
@@ -80,7 +61,7 @@ RSpec.describe SessionsController do
           expect(last_response.status).to be 400
         end
         it 'returns the correct response if the body does not contain a username' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'bad_request'})
+          expect(JSON.parse(last_response.body)).to eq({'message' => 'missing.username'})
         end
       end
       describe 'no password error' do
@@ -91,18 +72,7 @@ RSpec.describe SessionsController do
           expect(last_response.status).to be 400
         end
         it 'returns the correct response if the body does not contain a password' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'bad_request'})
-        end
-      end
-      describe 'no app key error' do
-        before do
-          post '/', {token: 'test_token', username: 'Babausse', password: 'password'}.to_json
-        end
-        it 'Raises a bad request (400) error when the body doesn\'t contain the token of the gateway' do
-          expect(last_response.status).to be 400
-        end
-        it 'returns the correct response if the body does not contain a gateway token' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'bad_request'})
+          expect(JSON.parse(last_response.body)).to eq({'message' => 'missing.password'})
         end
       end
     end
@@ -133,28 +103,6 @@ RSpec.describe SessionsController do
       end
     end
     describe 'not found errors' do
-      describe 'application not found' do
-        before do
-          post '/', {token: 'test_token', username: 'Babausse', password: 'password', app_key: 'another_key'}.to_json
-        end
-        it 'Raises a not found (404) error when the key doesn\'t belong to any application' do
-          expect(last_response.status).to be 404
-        end
-        it 'returns the correct body when the gateway doesn\'t exist' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'application_not_found'})
-        end
-      end
-      describe 'gateway not found' do
-        before do
-          post '/', {token: 'other_token', username: 'Babausse', password: 'other_password', app_key: 'test_key'}.to_json
-        end
-        it 'Raises a not found (404) error when the key doesn\'t belong to any application' do
-          expect(last_response.status).to be 404
-        end
-        it 'returns the correct body when the gateway doesn\'t exist' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'gateway_not_found'})
-        end
-      end
       describe 'username not found' do
         before do
           post '/', {token: 'test_token', username: 'Another Username', password: 'other_password', app_key: 'test_key'}.to_json
@@ -197,30 +145,9 @@ RSpec.describe SessionsController do
         end
       end
     end
-    describe 'bad_request errors' do
-      describe 'no token error' do
-        before do
-          get url, {app_key: 'test_key'}
-        end
-        it 'Raises a bad request (400) error when the body doesn\'t contain the token of the gateway' do
-          expect(last_response.status).to be 400
-        end
-        it 'returns the correct response if the body does not contain a gateway token' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'bad_request'})
-        end
-      end
-      describe 'no app key error' do
-        before do
-          get url, {token: 'test_token',}
-        end
-        it 'Raises a bad request (400) error when the body doesn\'t contain the token of the gateway' do
-          expect(last_response.status).to be 400
-        end
-        it 'returns the correct response if the body does not contain a gateway token' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'bad_request'})
-        end
-      end
-    end
+
+    it_should_behave_like 'a route', 'get', '/session_token'
+
     describe 'unauthorized errors' do
       describe 'application not authorized' do
         before do
@@ -244,28 +171,6 @@ RSpec.describe SessionsController do
         end
         it 'returns the correct body when the gateway doesn\'t exist' do
           expect(JSON.parse(last_response.body)).to eq({'message' => 'session_not_found'})
-        end
-      end
-      describe 'application not found' do
-        before do
-          get url, {token: 'test_token', app_key: 'another_key'}
-        end
-        it 'Raises a not found (404) error when the key doesn\'t belong to any application' do
-          expect(last_response.status).to be 404
-        end
-        it 'returns the correct body when the gateway doesn\'t exist' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'application_not_found'})
-        end
-      end
-      describe 'gateway not found' do
-        before do
-          get url, {token: 'other_token', app_key: 'test_key'}
-        end
-        it 'Raises a not found (404) error when the key doesn\'t belong to any application' do
-          expect(last_response.status).to be 404
-        end
-        it 'returns the correct body when the gateway doesn\'t exist' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'gateway_not_found'})
         end
       end
     end

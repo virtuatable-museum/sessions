@@ -2,9 +2,9 @@ ruby '2.3.4'
 source 'https://rubygems.org'
 
 group :development, :production, :test do
-  gem 'sinatra', '2.0.0'     , require: 'sinatra/base'
+  gem 'sinatra', '2.0.1'     , require: 'sinatra/base'
   gem 'mongoid', '7.0.0.beta'
-  gem 'arkaan' , '0.7.22'
+  gem 'arkaan' , '0.7.31'
   gem 'draper' , '3.0.1'
 end
 
