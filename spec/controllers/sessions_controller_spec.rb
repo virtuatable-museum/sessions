@@ -30,23 +30,12 @@ RSpec.describe SessionsController do
         it 'Returns the correct token for the created session' do
           expect(response_session['token']).to eq session.token
         end
-        it 'returns the correct expiration for the created session' do
-          expect(response_session['expiration']).to eq session.expiration
-        end
         it 'returns the right creation date for the created session' do
           expect(response_session['created_at']).to eq session.created_at.to_s
         end
         it 'returns the correct account ID for the user linked to the session' do
           expect(response_session['account_id']).to eq account.id.to_s
         end
-      end
-    end
-    describe 'Nominal case with a given expiration' do
-      before do
-        post '/', {token: 'test_token', username: 'Babausse', password: 'password', app_key: 'test_key', expiration: 1000}.to_json
-      end
-      it 'inserts the session with the right duration if the duration is given' do
-        expect(JSON.parse(last_response.body)['expiration']).to be 1000
       end
     end
 
@@ -133,9 +122,6 @@ RSpec.describe SessionsController do
 
         it 'returns the right token for the session' do
           expect(body['token']).to eq 'session_token'
-        end
-        it 'returns the right expiration for the session' do
-          expect(body['expiration']).to eq 3600
         end
         it 'returns the right creation date for the session' do
           expect(body['created_at']).to eq session.created_at.to_s

@@ -15,8 +15,7 @@ class SessionsController < Arkaan::Utils::Controller
     elsif BCrypt::Password.new(account.password_digest) != password
       halt 403, {message: 'wrong_password'}.to_json
     else
-      expiration = params['expiration'] || 3600
-      session = account.sessions.create(token: SecureRandom.hex, expiration: expiration)
+      session = account.sessions.create(token: SecureRandom.hex)
       halt 201, Decorators::Session.new(session).to_json
     end
   end
