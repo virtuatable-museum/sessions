@@ -29,4 +29,15 @@ class SessionsController < Arkaan::Utils::Controller
       halt 200, Decorators::Session.new(session).to_json
     end
   end
+
+  declare_premium_route('delete', '/:id') do
+    session = Arkaan::Authentication::Session.where(token: params['id']).first
+
+    if session.nil?
+      halt 404, {message: 'session_not_found'}.to_json
+    else
+      session.delete
+      halt 200, {message: 'deleted'}.to_json
+    end
+  end
 end

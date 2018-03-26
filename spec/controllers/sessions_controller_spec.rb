@@ -161,4 +161,36 @@ RSpec.describe SessionsController do
       end
     end
   end
+
+  describe 'DELETE /:id' do
+    let!(:session) { create(:session, account: account) }
+
+    describe 'Nominal case' do
+      before do
+        delete '/session_token', {token: 'test_token', app_key: 'test_key'}
+      end
+      it 'returns a OK (200) response code if the session is successfully deleted' do
+        expect(last_response.status).to be 200
+      end
+      it 'returns the correct body if the session is successfully deleted' do
+        expect(JSON.parse(last_response.body)).to eq({'message' => 'deleted'})
+      end
+    end
+
+    it_should_behave_like 'a route', 'delete', '/session_token'
+
+    describe 'not_found errors' do
+      describe 'session not found' do
+        before do
+          delete '/any_other_token', {token: 'test_token', app_key: 'test_key'}
+        end
+        it 'Raises a not found (404) error when the key doesn\'t belong to any application' do
+          expect(last_response.status).to be 404
+        end
+        it 'returns the correct body when the gateway doesn\'t exist' do
+          expect(JSON.parse(last_response.body)).to eq({'message' => 'session_not_found'})
+        end
+      end
+    end
+  end
 end
