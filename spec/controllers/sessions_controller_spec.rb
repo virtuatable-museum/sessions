@@ -31,7 +31,7 @@ RSpec.describe SessionsController do
           expect(response_session['token']).to eq session.token
         end
         it 'returns the right creation date for the created session' do
-          expect(response_session['created_at']).to eq session.created_at.to_s
+          expect(response_session['created_at']).to eq session.created_at.utc.iso8601
         end
         it 'returns the correct account ID for the user linked to the session' do
           expect(response_session['account_id']).to eq account.id.to_s
@@ -50,7 +50,12 @@ RSpec.describe SessionsController do
           expect(last_response.status).to be 400
         end
         it 'returns the correct response if the body does not contain a username' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'missing.username'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 400,
+            'field' => 'username',
+            'error' => 'required',
+            'docs' => 'https://github.com/jdr-tools/arkaan/wiki/Errors#parameter-not-given'
+          })
         end
       end
       describe 'no password error' do
@@ -61,24 +66,32 @@ RSpec.describe SessionsController do
           expect(last_response.status).to be 400
         end
         it 'returns the correct response if the body does not contain a password' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'missing.password'})
-        end
-      end
-    end
-    describe 'unauthorized errors' do
-      describe 'non premium application access' do
-        before do
-          post '/', {token: 'test_token', username: 'Babausse', password: 'password', app_key: 'other_key'}.to_json
-        end
-        it 'raises a unauthorized (401) error when the given API key belongs to a non premium application' do
-          expect(last_response.status).to be 401
-        end
-        it 'returns the correct body when application is not authorized to access the service' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'application_not_authorized'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 400,
+            'field' => 'password',
+            'error' => 'required',
+            'docs' => 'https://github.com/jdr-tools/arkaan/wiki/Errors#parameter-not-given'
+          })
         end
       end
     end
     describe 'forbidden errors' do
+      describe 'non premium application access' do
+        before do
+          post '/', {token: 'test_token', username: 'Babausse', password: 'password', app_key: 'other_key'}.to_json
+        end
+        it 'raises a forbidden (403) error when the given API key belongs to a non premium application' do
+          expect(last_response.status).to be 403
+        end
+        it 'returns the correct body when application is not authorized to access the service' do
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 403,
+            'field' => 'app_key',
+            'error' => 'forbidden',
+            'docs' => 'https://github.com/jdr-tools/arkaan/wiki/Errors#application-not-premium'
+          })
+        end
+      end
       describe 'wrong password given' do
         before do
           post '/', {token: 'test_token', username: 'Babausse', password: 'other_password', app_key: 'test_key'}.to_json
@@ -87,7 +100,12 @@ RSpec.describe SessionsController do
           expect(last_response.status).to be 403
         end
         it 'returns the correct body when the password given does not match the user password' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'wrong_password'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 403,
+            'field' => 'password',
+            'error' => 'wrong',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#password-not-matching'
+          })
         end
       end
     end
@@ -100,7 +118,12 @@ RSpec.describe SessionsController do
           expect(last_response.status).to be 404
         end
         it 'returns the correct body if the username is not belonging to any user' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'account_not_found'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 404,
+            'field' => 'username',
+            'error' => 'unknown',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#account-not-found'
+          })
         end
       end
     end
@@ -124,7 +147,7 @@ RSpec.describe SessionsController do
           expect(body['token']).to eq 'session_token'
         end
         it 'returns the right creation date for the session' do
-          expect(body['created_at']).to eq session.created_at.to_s
+          expect(body['created_at']).to eq session.created_at.utc.iso8601
         end
         it 'returns the correct account ID for the user linked to the session' do
           expect(body['account_id']).to eq account.id.to_s
@@ -134,16 +157,21 @@ RSpec.describe SessionsController do
 
     it_should_behave_like 'a route', 'get', '/session_token'
 
-    describe 'unauthorized errors' do
+    describe 'forbidden errors' do
       describe 'application not authorized' do
         before do
           get url, {token: 'test_token', app_key: 'other_key'}
         end
-        it 'Raises an unauthorized (401) error when the application is not premium' do
-          expect(last_response.status).to be 401
+        it 'Raises an forbidden (403) error when the application is not premium' do
+          expect(last_response.status).to be 403
         end
         it 'returns the correct body when the application is not supposed to access this route' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'application_not_authorized'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 403,
+            'field' => 'app_key',
+            'error' => 'forbidden',
+            'docs' => 'https://github.com/jdr-tools/arkaan/wiki/Errors#application-not-premium'
+          })
         end
       end
     end
@@ -156,7 +184,12 @@ RSpec.describe SessionsController do
           expect(last_response.status).to be 404
         end
         it 'returns the correct body when the gateway doesn\'t exist' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'session_not_found'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 404,
+            'field' => 'session_id',
+            'error' => 'unknown',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#session-not-found'
+          })
         end
       end
     end
@@ -188,7 +221,12 @@ RSpec.describe SessionsController do
           expect(last_response.status).to be 404
         end
         it 'returns the correct body when the gateway doesn\'t exist' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'session_not_found'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 404,
+            'field' => 'session_id',
+            'error' => 'unknown',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#session-not-found-1'
+          })
         end
       end
     end
