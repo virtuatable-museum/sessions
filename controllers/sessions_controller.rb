@@ -4,19 +4,19 @@
 # @author Vincent Courtois <courtois.vincent@outlook.com>
 class SessionsController < Arkaan::Utils::Controller
 
+  load_errors_from __FILE__
+
   # @see https://github.com/jdr-tools/wiki/wiki/Sessions-API#creation-of-a-session
   declare_premium_route('post', '/') do
-    check_presence('username', 'password')
+    check_presence 'username', 'password'
 
     account = Arkaan::Account.where(username: params['username']).first
     password = params['password']
 
     if account.nil?
-      url = 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#account-not-found'
-      halt 404, {status: 404, field: 'username', error: 'unknown', docs: url}.to_json
+      custom_error 404, 'username', 'unknown'
     elsif BCrypt::Password.new(account.password_digest) != password
-      url = 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#password-not-matching'
-      halt 403, {status: 403, field: 'password', error: 'wrong', docs: url}.to_json
+      custom_error 403, 'password', 'wrong'
     else
       session = account.sessions.create(token: SecureRandom.hex)
       halt 201, Decorators::Session.new(session).to_json
@@ -28,8 +28,7 @@ class SessionsController < Arkaan::Utils::Controller
     session = Arkaan::Authentication::Session.where(token: params['id']).first
 
     if session.nil?
-      url = 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#session-not-found'
-      halt 404, {status: 404, field: 'session_id', error: 'unknown', docs: url}.to_json
+      custom_error 404, 'session_id', 'unknown'
     else
       halt 200, Decorators::Session.new(session).to_json
     end
@@ -40,8 +39,7 @@ class SessionsController < Arkaan::Utils::Controller
     session = Arkaan::Authentication::Session.where(token: params['id']).first
 
     if session.nil?
-      url = 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#session-not-found-1'
-      halt 404, {status: 404, field: 'session_id', error: 'unknown', docs: url}.to_json
+      custom_error 404, 'session_id', 'unknown', suffix: '-1'
     else
       session.delete
       halt 200, {message: 'deleted'}.to_json
