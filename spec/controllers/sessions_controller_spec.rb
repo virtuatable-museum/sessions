@@ -54,7 +54,7 @@ RSpec.describe SessionsController do
             'status' => 400,
             'field' => 'username',
             'error' => 'required',
-            'docs' => 'https://github.com/jdr-tools/arkaan/wiki/Errors#parameter-not-given'
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#username-not-given'
           })
         end
       end
@@ -70,7 +70,7 @@ RSpec.describe SessionsController do
             'status' => 400,
             'field' => 'password',
             'error' => 'required',
-            'docs' => 'https://github.com/jdr-tools/arkaan/wiki/Errors#parameter-not-given'
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#password-not-given'
           })
         end
       end
@@ -88,7 +88,7 @@ RSpec.describe SessionsController do
             'status' => 403,
             'field' => 'app_key',
             'error' => 'forbidden',
-            'docs' => 'https://github.com/jdr-tools/arkaan/wiki/Errors#application-not-premium'
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Common-errors#application-not-premium'
           })
         end
       end
@@ -170,7 +170,7 @@ RSpec.describe SessionsController do
             'status' => 403,
             'field' => 'app_key',
             'error' => 'forbidden',
-            'docs' => 'https://github.com/jdr-tools/arkaan/wiki/Errors#application-not-premium'
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Common-errors#application-not-premium'
           })
         end
       end

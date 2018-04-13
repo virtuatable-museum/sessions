@@ -1,0 +1,22 @@
+errors:
+  common:
+    app_key:
+      forbidden: 'https://github.com/jdr-tools/wiki/wiki/Common-errors#application-not-premium'
+      required: 'https://github.com/jdr-tools/wiki/wiki/Common-errors#application-key-not-given'
+      unknown: 'https://github.com/jdr-tools/wiki/wiki/Common-errors#application-key-not-found'
+    token:
+      required: 'https://github.com/jdr-tools/wiki/wiki/Common-errors#gateway-token-not-given'
+      unknown: 'https://github.com/jdr-tools/wiki/wiki/Common-errors#gateway-token-not-found'
+  creation:
+    password:
+      required: "https://github.com/jdr-tools/wiki/wiki/Sessions-API#password-not-given"
+      wrong: "https://github.com/jdr-tools/wiki/wiki/Sessions-API#password-not-matching"
+    username:
+      required: "https://github.com/jdr-tools/wiki/wiki/Sessions-API#username-not-given"
+      unknown: "https://github.com/jdr-tools/wiki/wiki/Sessions-API#account-not-found"
+  deletion:
+    session_id:
+      unknown: "https://github.com/jdr-tools/wiki/wiki/Sessions-API#session-not-found-1"
+  informations:
+    session_id:
+      unknown: "https://github.com/jdr-tools/wiki/wiki/Sessions-API#session-not-found"

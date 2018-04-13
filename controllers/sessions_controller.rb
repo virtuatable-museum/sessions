@@ -8,15 +8,13 @@ class SessionsController < Arkaan::Utils::Controller
 
   # @see https://github.com/jdr-tools/wiki/wiki/Sessions-API#creation-of-a-session
   declare_premium_route('post', '/') do
-    check_presence 'username', 'password'
+    check_presence 'username', 'password', route: 'creation'
 
     account = Arkaan::Account.where(username: params['username']).first
-    password = params['password']
-
     if account.nil?
-      custom_error 404, 'username', 'unknown'
-    elsif BCrypt::Password.new(account.password_digest) != password
-      custom_error 403, 'password', 'wrong'
+      custom_error 404, 'creation.username.unknown'
+    elsif BCrypt::Password.new(account.password_digest) != params['password']
+      custom_error 403, 'creation.password.wrong'
     else
       session = account.sessions.create(token: SecureRandom.hex)
       halt 201, Decorators::Session.new(session).to_json
@@ -28,7 +26,7 @@ class SessionsController < Arkaan::Utils::Controller
     session = Arkaan::Authentication::Session.where(token: params['id']).first
 
     if session.nil?
-      custom_error 404, 'session_id', 'unknown'
+      custom_error 404, 'informations.session_id.unknown'
     else
       halt 200, Decorators::Session.new(session).to_json
     end
@@ -39,7 +37,7 @@ class SessionsController < Arkaan::Utils::Controller
     session = Arkaan::Authentication::Session.where(token: params['id']).first
 
     if session.nil?
-      custom_error 404, 'session_id', 'unknown', suffix: '-1'
+      custom_error 404, 'deletion.session_id.unknown'
     else
       session.delete
       halt 200, {message: 'deleted'}.to_json
