@@ -1,4 +1,4 @@
-RSpec.describe SessionsController do
+RSpec.describe Controllers::Sessions do
 
   before do
     DatabaseCleaner.clean
@@ -6,7 +6,7 @@ RSpec.describe SessionsController do
   end
 
   def app
-    SessionsController.new
+    Controllers::Sessions.new
   end
 
   let!(:account) { create(:account) }
