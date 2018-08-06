@@ -8,7 +8,7 @@ module Controllers
     load_errors_from __FILE__
 
     # @see https://github.com/jdr-tools/wiki/wiki/Sessions-API#creation-of-a-session
-    declare_premium_route('post', '/') do
+    declare_premium_route('post', '/', options: {authenticated: false}) do
       check_presence 'username', 'password', route: 'creation'
 
       account = Arkaan::Account.where(username: params['username']).first
