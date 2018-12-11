@@ -18,7 +18,7 @@ RSpec.describe Controllers::Sessions do
 
     describe 'nominal case' do
       before do
-        post '/', {token: 'test_token', username: 'Babausse', password: 'password', app_key: 'test_key'}.to_json
+        post '/sessions', {token: 'test_token', username: 'Babausse', password: 'password', app_key: 'test_key'}.to_json
       end
       it 'Correctly creates a session when every parameter are alright' do
         expect(last_response.status).to be 201
@@ -39,12 +39,12 @@ RSpec.describe Controllers::Sessions do
       end
     end
 
-    it_should_behave_like 'a route', 'post', '/'
+    it_should_behave_like 'a route', 'post', '/sessions'
 
     describe 'bad request errors' do
       describe 'no username error' do
         before do
-          post '/', {token: 'test_token', password: 'password', app_key: 'test_key'}.to_json
+          post '/sessions', {token: 'test_token', password: 'password', app_key: 'test_key'}.to_json
         end
         it 'Raises a bad request (400) error when the body doesn\'t contain the username' do
           expect(last_response.status).to be 400
@@ -60,7 +60,7 @@ RSpec.describe Controllers::Sessions do
       end
       describe 'no password error' do
         before do
-          post '/', {token: 'test_token', username: 'Babausse', app_key: 'test_key'}.to_json
+          post '/sessions', {token: 'test_token', username: 'Babausse', app_key: 'test_key'}.to_json
         end
         it 'Raises a bad request (400) error when the body doesn\'t contain the password' do
           expect(last_response.status).to be 400
@@ -78,7 +78,7 @@ RSpec.describe Controllers::Sessions do
     describe 'forbidden errors' do
       describe 'non premium application access' do
         before do
-          post '/', {token: 'test_token', username: 'Babausse', password: 'password', app_key: 'other_key'}.to_json
+          post '/sessions', {token: 'test_token', username: 'Babausse', password: 'password', app_key: 'other_key'}.to_json
         end
         it 'raises a forbidden (403) error when the given API key belongs to a non premium application' do
           expect(last_response.status).to be 403
@@ -94,7 +94,7 @@ RSpec.describe Controllers::Sessions do
       end
       describe 'wrong password given' do
         before do
-          post '/', {token: 'test_token', username: 'Babausse', password: 'other_password', app_key: 'test_key'}.to_json
+          post '/sessions', {token: 'test_token', username: 'Babausse', password: 'other_password', app_key: 'test_key'}.to_json
         end
         it 'raises a forbidden (403) error when the given password doesn\'t match the user password' do
           expect(last_response.status).to be 403
@@ -112,7 +112,7 @@ RSpec.describe Controllers::Sessions do
     describe 'not found errors' do
       describe 'username not found' do
         before do
-          post '/', {token: 'test_token', username: 'Another Username', password: 'other_password', app_key: 'test_key'}.to_json
+          post '/sessions', {token: 'test_token', username: 'Another Username', password: 'other_password', app_key: 'test_key'}.to_json
         end
         it 'Raises a not found (404) error when the username doesn\'t belong to any known user' do
           expect(last_response.status).to be 404
@@ -131,7 +131,7 @@ RSpec.describe Controllers::Sessions do
 
   describe 'get /sessions/:id' do
     let!(:session) { create(:session, account: account) }
-    let!(:url) { "/#{session.token}" }
+    let!(:url) { "/sessions/#{session.token}" }
 
     describe 'Nominal case, returns the correct session' do
       before do
@@ -155,7 +155,7 @@ RSpec.describe Controllers::Sessions do
       end
     end
 
-    it_should_behave_like 'a route', 'get', '/session_token'
+    it_should_behave_like 'a route', 'get', '/sessions/session_token'
 
     describe 'forbidden errors' do
       describe 'application not authorized' do
@@ -178,7 +178,7 @@ RSpec.describe Controllers::Sessions do
     describe 'not_found errors' do
       describe 'session not found' do
         before do
-          get "/any_other_token", {token: 'test_token', app_key: 'test_key'}
+          get "/sessions/any_other_token", {token: 'test_token', app_key: 'test_key'}
         end
         it 'Raises a not found (404) error when the key doesn\'t belong to any application' do
           expect(last_response.status).to be 404
@@ -200,7 +200,7 @@ RSpec.describe Controllers::Sessions do
 
     describe 'Nominal case' do
       before do
-        delete '/session_token', {token: 'test_token', app_key: 'test_key'}
+        delete '/sessions/session_token', {token: 'test_token', app_key: 'test_key'}
       end
       it 'returns a OK (200) response code if the session is successfully deleted' do
         expect(last_response.status).to be 200
@@ -215,7 +215,7 @@ RSpec.describe Controllers::Sessions do
     describe 'not_found errors' do
       describe 'session not found' do
         before do
-          delete '/any_other_token', {token: 'test_token', app_key: 'test_key'}
+          delete '/sessions/any_other_token', {token: 'test_token', app_key: 'test_key'}
         end
         it 'Raises a not found (404) error when the key doesn\'t belong to any application' do
           expect(last_response.status).to be 404
