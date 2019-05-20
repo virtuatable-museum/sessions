@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 group :development, :production, :test do
   gem 'sinatra', '2.0.1' , require: 'sinatra/base'
   gem 'mongoid', '7.0.1'
-  gem 'arkaan' , '1.3.11'
+  gem 'arkaan' , '1.4.7'
   gem 'draper' , '3.0.1'
 
   gem 'capistrano'        , '3.11.0'
