@@ -1,4 +1,3 @@
-ruby '2.3.4'
 source 'https://rubygems.org'
 
 group :development, :production, :test do
@@ -6,6 +5,11 @@ group :development, :production, :test do
   gem 'mongoid', '7.0.1'
   gem 'arkaan' , '1.3.11'
   gem 'draper' , '3.0.1'
+
+  gem 'capistrano'        , '3.11.0'
+  gem 'capistrano-bundler', '1.5.0'
+  gem 'capistrano-rvm'    , '0.1.1'
+  gem 'dotenv', '2.7.2'
 end
 
 group :developement, :production do
