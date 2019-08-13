@@ -3,9 +3,11 @@
 # Main controller of the application, creating and destroying sessions.
 # @author Vincent Courtois <courtois.vincent@outlook.com>
 module Controllers
-  class Sessions < Arkaan::Utils::Controller
+  class Sessions < Arkaan::Utils::Controllers::Checked
 
     load_errors_from __FILE__
+
+    declare_status_route
 
     # @see https://github.com/jdr-tools/wiki/wiki/Sessions-API#creation-of-a-session
     declare_premium_route('post', '/', options: {authenticated: false}) do
