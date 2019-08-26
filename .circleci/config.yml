@@ -27,7 +27,7 @@ jobs:
     executor: virtuaexecutors/mongoruby_2-6-3
     steps:
       - virtuacommands/run-rspec-tests:
-          suite: 'spec/controllers/sessions_controller_spec.rb'
+          suite: 'spec/controllers/sessions_spec.rb'
 
 workflows:
   version: 2.1
