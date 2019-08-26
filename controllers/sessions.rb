@@ -1,16 +1,15 @@
 # frozen_string_literal: true
 
-# Main controller of the application, creating and destroying sessions.
-# @author Vincent Courtois <courtois.vincent@outlook.com>
 module Controllers
+  # Main controller of the application, creating and destroying sessions.
+  # @author Vincent Courtois <courtois.vincent@outlook.com>
   class Sessions < Arkaan::Utils::Controllers::Checked
-
     load_errors_from __FILE__
 
     declare_status_route
 
     # @see https://github.com/jdr-tools/wiki/wiki/Sessions-API#creation-of-a-session
-    declare_premium_route('post', '/', options: {authenticated: false}) do
+    declare_premium_route('post', '/', options: { authenticated: false }) do
       check_presence 'username', 'password', route: 'creation'
 
       account = Arkaan::Account.where(username: params['username']).first
@@ -43,7 +42,7 @@ module Controllers
         custom_error 404, 'deletion.session_id.unknown'
       else
         session.delete
-        halt 200, {message: 'deleted'}.to_json
+        halt 200, { message: 'deleted' }.to_json
       end
     end
   end
