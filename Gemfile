@@ -28,4 +28,5 @@ group :development, :test do
   gem 'bcrypt'                 , '3.1.11'
   gem 'rubocop'                , '0.71.0'
   gem 'yard'                   , '0.9.20'
+  gem 'rspec_junit_formatter'  , '0.4.1'
 end
