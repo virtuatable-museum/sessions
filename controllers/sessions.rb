@@ -4,7 +4,6 @@ module Controllers
   # Main controller of the application, creating and destroying sessions.
   # @author Vincent Courtois <courtois.vincent@outlook.com>
   class Sessions < Virtuatable::Controllers::Base
-
     api_route 'post', '/', options: { authenticated: false, premium: true } do
       check_presence 'email', 'password'
 
