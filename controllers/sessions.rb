@@ -3,47 +3,36 @@
 module Controllers
   # Main controller of the application, creating and destroying sessions.
   # @author Vincent Courtois <courtois.vincent@outlook.com>
-  class Sessions < Arkaan::Utils::Controllers::Checked
-    load_errors_from __FILE__
+  class Sessions < Virtuatable::Controllers::Base
 
-    declare_status_route
+    api_route 'post', '/', options: { authenticated: false, premium: true } do
+      check_presence 'email', 'password'
 
-    # @see https://github.com/jdr-tools/wiki/wiki/Sessions-API#creation-of-a-session
-    declare_premium_route('post', '/', options: { authenticated: false }) do
-      check_presence 'username', 'password', route: 'creation'
+      account = Arkaan::Account.find_by(email: params['email'])
+      api_not_found 'email.unknown' if account.nil?
+      api_forbidden 'password.wrong' if matches_password(account)
 
-      account = Arkaan::Account.where(username: params['username']).first
-      if account.nil?
-        custom_error 404, 'creation.username.unknown'
-      elsif BCrypt::Password.new(account.password_digest) != params['password']
-        custom_error 403, 'creation.password.wrong'
-      else
-        session = account.sessions.create(token: SecureRandom.hex)
-        halt 201, Decorators::Session.new(session).to_json
-      end
+      session = account.sessions.create(token: SecureRandom.hex)
+      api_created session
     end
 
-    # @see https://github.com/jdr-tools/wiki/wiki/Sessions-API#getting-a-session
-    declare_premium_route('get', '/:id') do
-      session = Arkaan::Authentication::Session.where(token: params['id']).first
-
-      if session.nil?
-        custom_error 404, 'informations.session_id.unknown'
-      else
-        halt 200, Decorators::Session.new(session).to_json
-      end
+    api_route 'get', '/:id', options: { premium: true } do
+      api_not_found 'session_id.unknown' if current_session.nil?
+      api_item session
     end
 
-    # @see https://github.com/jdr-tools/wiki/wiki/Sessions-API#deleting-a-session
-    declare_premium_route('delete', '/:id') do
-      session = Arkaan::Authentication::Session.where(token: params['id']).first
+    api_route 'delete', '/:id', options: { premium: true } do
+      api_not_found 'session_id.unknown' if current_session.nil?
+      session.delete
+      api_ok 'deleted'
+    end
 
-      if session.nil?
-        custom_error 404, 'deletion.session_id.unknown'
-      else
-        session.delete
-        halt 200, { message: 'deleted' }.to_json
-      end
+    def current_session
+      Arkaan::Authentication::Session.find_by(token: params['id'])
+    end
+
+    def matches_password(account)
+      BCrypt::Password.new(account.password_digest) != params['password']
     end
   end
 end

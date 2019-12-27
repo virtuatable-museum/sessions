@@ -1,129 +1,141 @@
 RSpec.describe Controllers::Sessions do
 
-  before do
-    DatabaseCleaner.clean
-    create(:service)
-  end
-
   def app
     Controllers::Sessions.new
   end
 
+  let!(:service) { create(:service) }
   let!(:account) { create(:account) }
   let!(:gateway) { create(:gateway) }
   let!(:premium_application) { create(:premium_application, creator: account) }
   let!(:application) { create(:application, creator: account) }
 
-  describe 'post /sessions' do
-
+  describe 'POST /' do
     describe 'nominal case' do
       before do
-        post '/sessions', {token: 'test_token', username: 'Babausse', password: 'password', app_key: 'test_key'}.to_json
+        post '/sessions', {
+          token: 'test_token',
+          email: 'test@test.com',
+          password: 'password',
+          app_key: 'test_key'
+        }
       end
-      it 'Correctly creates a session when every parameter are alright' do
+      it 'Returns a 201 (Created) status code' do
         expect(last_response.status).to be 201
       end
-      describe 'response format' do
-        let!(:session) { Arkaan::Authentication::Session.first }
-        let!(:response_session) { JSON.parse(last_response.body) }
-
-        it 'Returns the correct token for the created session' do
-          expect(response_session['token']).to eq session.token
-        end
-        it 'returns the right creation date for the created session' do
-          expect(response_session['created_at']).to eq session.created_at.utc.iso8601
-        end
-        it 'returns the correct account ID for the user linked to the session' do
-          expect(response_session['account_id']).to eq account.id.to_s
-        end
+      it 'Returns the correct body' do
+        session = Arkaan::Authentication::Session.first
+        expect(last_response.body).to include_json(
+          token: session.token,
+          created_at: session.created_at.utc.iso8601,
+          account_id: account.id.to_s
+        )
       end
     end
 
     it_should_behave_like 'a route', 'post', '/sessions'
 
-    describe 'bad request errors' do
-      describe 'no username error' do
+    describe '400 errors' do
+      describe 'no email error' do
         before do
-          post '/sessions', {token: 'test_token', password: 'password', app_key: 'test_key'}.to_json
+          post '/sessions', {
+            token: 'test_token',
+            password: 'password',
+            app_key: 'test_key'
+          }
         end
-        it 'Raises a bad request (400) error when the body doesn\'t contain the username' do
+        it 'Returns a 400 (Bad Request) status code' do
           expect(last_response.status).to be 400
         end
-        it 'returns the correct response if the body does not contain a username' do
-          expect(JSON.parse(last_response.body)).to eq({
-            'status' => 400,
-            'field' => 'username',
-            'error' => 'required',
-            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#username-not-given'
-          })
+        it 'returns the correct body' do
+          expect(last_response.body).to include_json(
+            status: 400,
+            field: 'email',
+            error: 'required',
+          )
         end
       end
       describe 'no password error' do
         before do
-          post '/sessions', {token: 'test_token', username: 'Babausse', app_key: 'test_key'}.to_json
+          post '/sessions', {
+            token: 'test_token',
+            email: 'test@test.com',
+            app_key: 'test_key'
+          }
         end
-        it 'Raises a bad request (400) error when the body doesn\'t contain the password' do
+        it 'Returns a 400 (Bad Request) status code' do
           expect(last_response.status).to be 400
         end
-        it 'returns the correct response if the body does not contain a password' do
-          expect(JSON.parse(last_response.body)).to eq({
-            'status' => 400,
-            'field' => 'password',
-            'error' => 'required',
-            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#password-not-given'
-          })
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json(
+            status: 400,
+            field: 'password',
+            error: 'required',
+          )
         end
       end
     end
-    describe 'forbidden errors' do
+    describe '403 errors' do
       describe 'non premium application access' do
         before do
-          post '/sessions', {token: 'test_token', username: 'Babausse', password: 'password', app_key: 'other_key'}.to_json
+          post '/sessions', {
+            token: 'test_token',
+            email: 'test@test.com',
+            password: 'password',
+            app_key: 'other_key'
+          }
         end
-        it 'raises a forbidden (403) error when the given API key belongs to a non premium application' do
+        it 'Returns a 403 (Forbidden) status code' do
           expect(last_response.status).to be 403
         end
-        it 'returns the correct body when application is not authorized to access the service' do
-          expect(JSON.parse(last_response.body)).to eq({
-            'status' => 403,
-            'field' => 'app_key',
-            'error' => 'forbidden',
-            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Common-errors#application-not-premium'
-          })
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json(
+            status: 403,
+            field: 'app_key',
+            error: 'forbidden'
+          )
         end
       end
       describe 'wrong password given' do
         before do
-          post '/sessions', {token: 'test_token', username: 'Babausse', password: 'other_password', app_key: 'test_key'}.to_json
+          post '/sessions', {
+            token: 'test_token',
+            email: 'test@test.com',
+            password: 'other_password',
+            app_key: 'test_key'
+          }
         end
-        it 'raises a forbidden (403) error when the given password doesn\'t match the user password' do
+        it 'Returns a 403 (Forbidden) status code' do
           expect(last_response.status).to be 403
         end
-        it 'returns the correct body when the password given does not match the user password' do
-          expect(JSON.parse(last_response.body)).to eq({
-            'status' => 403,
-            'field' => 'password',
-            'error' => 'wrong',
-            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#password-not-matching'
-          })
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json(
+            status: 403,
+            field: 'password',
+            error: 'wrong'
+          )
         end
       end
     end
-    describe 'not found errors' do
-      describe 'username not found' do
+    describe '404 errors' do
+      describe 'email not found' do
         before do
-          post '/sessions', {token: 'test_token', username: 'Another Username', password: 'other_password', app_key: 'test_key'}.to_json
+          post '/sessions', {
+            token: 'test_token',
+            email: 'fake@test.com',
+            password: 'other_password',
+            app_key: 'test_key'
+          }
         end
-        it 'Raises a not found (404) error when the username doesn\'t belong to any known user' do
+        it 'Returns a 404 (Not Found) status code' do
           expect(last_response.status).to be 404
         end
-        it 'returns the correct body if the username is not belonging to any user' do
-          expect(JSON.parse(last_response.body)).to eq({
-            'status' => 404,
-            'field' => 'username',
-            'error' => 'unknown',
-            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#account-not-found'
-          })
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json(
+            status: 404,
+            field: 'email',
+            error: 'unknown'
+          )
         end
       end
     end
@@ -135,61 +147,65 @@ RSpec.describe Controllers::Sessions do
 
     describe 'Nominal case, returns the correct session' do
       before do
-        get "#{url}?app_key=test_key&token=test_token"
+        get "/sessions/#{session.token}", {
+          app_key: 'test_key',
+          token: 'test_token',
+            session_id: session.token
+        }
       end
-      it 'returns a 200 code when the route is correctly called' do
+      it 'returns a 200 (OK) status code' do
         expect(last_response.status).to be 200
       end
-      describe 'Response body parameters' do
-        let!(:body) { JSON.parse(last_response.body) rescue {} }
-
-        it 'returns the right token for the session' do
-          expect(body['token']).to eq 'session_token'
-        end
-        it 'returns the right creation date for the session' do
-          expect(body['created_at']).to eq session.created_at.utc.iso8601
-        end
-        it 'returns the correct account ID for the user linked to the session' do
-          expect(body['account_id']).to eq account.id.to_s
-        end
+      it 'Returns the correct body' do
+        expect(last_response.body).to include_json(
+          token: 'session_token',
+          created_at: session.created_at.utc.iso8601,
+          account_id: account.id.to_s
+        )
       end
     end
 
     it_should_behave_like 'a route', 'get', '/sessions/session_token'
 
-    describe 'forbidden errors' do
+    describe '403 errors' do
       describe 'application not authorized' do
         before do
-          get url, {token: 'test_token', app_key: 'other_key'}
+          get url, {
+            token: 'test_token',
+            app_key: 'other_key',
+            session_id: session.token
+          }
         end
-        it 'Raises an forbidden (403) error when the application is not premium' do
+        it 'Returns a 403 (Forbidden) status code' do
           expect(last_response.status).to be 403
         end
-        it 'returns the correct body when the application is not supposed to access this route' do
-          expect(JSON.parse(last_response.body)).to eq({
-            'status' => 403,
-            'field' => 'app_key',
-            'error' => 'forbidden',
-            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Common-errors#application-not-premium'
-          })
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json(
+            status: 403,
+            field: 'app_key',
+            error: 'forbidden'
+          )
         end
       end
     end
-    describe 'not_found errors' do
+    describe '404 errors' do
       describe 'session not found' do
         before do
-          get "/sessions/any_other_token", {token: 'test_token', app_key: 'test_key'}
+          get "/sessions/any_other_token", {
+            token: 'test_token',
+            app_key: 'test_key',
+            session_id: session.token
+          }
         end
-        it 'Raises a not found (404) error when the key doesn\'t belong to any application' do
+        it 'Returns a 404 (Not Found) status code' do
           expect(last_response.status).to be 404
         end
-        it 'returns the correct body when the gateway doesn\'t exist' do
-          expect(JSON.parse(last_response.body)).to eq({
-            'status' => 404,
-            'field' => 'session_id',
-            'error' => 'unknown',
-            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#session-not-found'
-          })
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json(
+            status: 404,
+            field: 'session_id',
+            error: 'unknown'
+          )
         end
       end
     end
@@ -200,33 +216,40 @@ RSpec.describe Controllers::Sessions do
 
     describe 'Nominal case' do
       before do
-        delete '/sessions/session_token', {token: 'test_token', app_key: 'test_key'}
+        delete '/sessions/session_token', {
+          token: 'test_token',
+          app_key: 'test_key',
+          session_id: session.token
+        }
       end
-      it 'returns a OK (200) response code if the session is successfully deleted' do
+      it 'returns a 200 (OK) status code' do
         expect(last_response.status).to be 200
       end
-      it 'returns the correct body if the session is successfully deleted' do
-        expect(JSON.parse(last_response.body)).to eq({'message' => 'deleted'})
+      it 'returns the correct body' do
+        expect(last_response.body).to include_json(message: 'deleted')
       end
     end
 
-    it_should_behave_like 'a route', 'delete', '/session_token'
+    it_should_behave_like 'a route', 'delete', '/sessions/session_token'
 
-    describe 'not_found errors' do
+    describe '404 errors' do
       describe 'session not found' do
         before do
-          delete '/sessions/any_other_token', {token: 'test_token', app_key: 'test_key'}
+          delete '/sessions/any_other_token', {
+            token: 'test_token',
+            app_key: 'test_key',
+            session_id: session.token
+          }
         end
-        it 'Raises a not found (404) error when the key doesn\'t belong to any application' do
+        it 'Returns a 404 (Not Found) status code' do
           expect(last_response.status).to be 404
         end
-        it 'returns the correct body when the gateway doesn\'t exist' do
-          expect(JSON.parse(last_response.body)).to eq({
-            'status' => 404,
-            'field' => 'session_id',
-            'error' => 'unknown',
-            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Sessions-API#session-not-found-1'
-          })
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json(
+            status: 404,
+            field: 'session_id',
+            error: 'unknown'
+          )
         end
       end
     end

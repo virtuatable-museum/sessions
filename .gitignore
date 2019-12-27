@@ -1,5 +1,5 @@
 .yardoc/
 doc/
 coverage/
-.env
+*.env
 log/
