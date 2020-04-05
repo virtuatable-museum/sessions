@@ -6,7 +6,6 @@ RSpec.describe Controllers::Sessions do
 
   let!(:service) { create(:service) }
   let!(:account) { create(:account) }
-  let!(:gateway) { create(:gateway) }
   let!(:premium_application) { create(:premium_application, creator: account) }
   let!(:application) { create(:application, creator: account) }
 
@@ -14,7 +13,6 @@ RSpec.describe Controllers::Sessions do
     describe 'nominal case' do
       before do
         post '/sessions', {
-          token: 'test_token',
           email: 'test@test.com',
           password: 'password',
           app_key: 'test_key'
@@ -39,7 +37,6 @@ RSpec.describe Controllers::Sessions do
       describe 'no email error' do
         before do
           post '/sessions', {
-            token: 'test_token',
             password: 'password',
             app_key: 'test_key'
           }
@@ -58,7 +55,6 @@ RSpec.describe Controllers::Sessions do
       describe 'no password error' do
         before do
           post '/sessions', {
-            token: 'test_token',
             email: 'test@test.com',
             app_key: 'test_key'
           }
@@ -79,7 +75,6 @@ RSpec.describe Controllers::Sessions do
       describe 'non premium application access' do
         before do
           post '/sessions', {
-            token: 'test_token',
             email: 'test@test.com',
             password: 'password',
             app_key: 'other_key'
@@ -99,7 +94,6 @@ RSpec.describe Controllers::Sessions do
       describe 'wrong password given' do
         before do
           post '/sessions', {
-            token: 'test_token',
             email: 'test@test.com',
             password: 'other_password',
             app_key: 'test_key'
@@ -121,7 +115,6 @@ RSpec.describe Controllers::Sessions do
       describe 'email not found' do
         before do
           post '/sessions', {
-            token: 'test_token',
             email: 'fake@test.com',
             password: 'other_password',
             app_key: 'test_key'
@@ -149,8 +142,7 @@ RSpec.describe Controllers::Sessions do
       before do
         get "/sessions/#{session.token}", {
           app_key: 'test_key',
-          token: 'test_token',
-            session_id: session.token
+          session_id: session.token
         }
       end
       it 'returns a 200 (OK) status code' do
@@ -171,7 +163,6 @@ RSpec.describe Controllers::Sessions do
       describe 'application not authorized' do
         before do
           get url, {
-            token: 'test_token',
             app_key: 'other_key',
             session_id: session.token
           }
@@ -192,7 +183,6 @@ RSpec.describe Controllers::Sessions do
       describe 'session not found' do
         before do
           get "/sessions/any_other_token", {
-            token: 'test_token',
             app_key: 'test_key',
             session_id: session.token
           }
@@ -217,7 +207,6 @@ RSpec.describe Controllers::Sessions do
     describe 'Nominal case' do
       before do
         delete '/sessions/session_token', {
-          token: 'test_token',
           app_key: 'test_key',
           session_id: session.token
         }
@@ -236,7 +225,6 @@ RSpec.describe Controllers::Sessions do
       describe 'session not found' do
         before do
           delete '/sessions/any_other_token', {
-            token: 'test_token',
             app_key: 'test_key',
             session_id: session.token
           }
