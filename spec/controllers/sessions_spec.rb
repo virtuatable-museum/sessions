@@ -12,7 +12,7 @@ RSpec.describe Controllers::Sessions do
   describe 'POST /' do
     describe 'nominal case' do
       before do
-        post '/sessions', {
+        post '/', {
           email: 'test@test.com',
           password: 'password',
           app_key: 'test_key'
@@ -31,12 +31,12 @@ RSpec.describe Controllers::Sessions do
       end
     end
 
-    it_should_behave_like 'a route', 'post', '/sessions'
+    it_should_behave_like 'a route', 'post', '/'
 
     describe '400 errors' do
       describe 'no email error' do
         before do
-          post '/sessions', {
+          post '/', {
             password: 'password',
             app_key: 'test_key'
           }
@@ -54,7 +54,7 @@ RSpec.describe Controllers::Sessions do
       end
       describe 'no password error' do
         before do
-          post '/sessions', {
+          post '/', {
             email: 'test@test.com',
             app_key: 'test_key'
           }
@@ -74,7 +74,7 @@ RSpec.describe Controllers::Sessions do
     describe '403 errors' do
       describe 'non premium application access' do
         before do
-          post '/sessions', {
+          post '/', {
             email: 'test@test.com',
             password: 'password',
             app_key: 'other_key'
@@ -93,7 +93,7 @@ RSpec.describe Controllers::Sessions do
       end
       describe 'wrong password given' do
         before do
-          post '/sessions', {
+          post '/', {
             email: 'test@test.com',
             password: 'other_password',
             app_key: 'test_key'
@@ -114,7 +114,7 @@ RSpec.describe Controllers::Sessions do
     describe '404 errors' do
       describe 'email not found' do
         before do
-          post '/sessions', {
+          post '/', {
             email: 'fake@test.com',
             password: 'other_password',
             app_key: 'test_key'
@@ -134,13 +134,13 @@ RSpec.describe Controllers::Sessions do
     end
   end
 
-  describe 'get /sessions/:id' do
+  describe 'get /:id' do
     let!(:session) { create(:session, account: account) }
-    let!(:url) { "/sessions/#{session.token}" }
+    let!(:url) { "/#{session.token}" }
 
     describe 'Nominal case, returns the correct session' do
       before do
-        get "/sessions/#{session.token}", {
+        get "/#{session.token}", {
           app_key: 'test_key',
           session_id: session.token
         }
@@ -157,7 +157,7 @@ RSpec.describe Controllers::Sessions do
       end
     end
 
-    it_should_behave_like 'a route', 'get', '/sessions/session_token'
+    it_should_behave_like 'a route', 'get', '/session_token'
 
     describe '403 errors' do
       describe 'application not authorized' do
@@ -182,7 +182,7 @@ RSpec.describe Controllers::Sessions do
     describe '404 errors' do
       describe 'session not found' do
         before do
-          get "/sessions/any_other_token", {
+          get "/any_other_token", {
             app_key: 'test_key',
             session_id: session.token
           }
@@ -206,7 +206,7 @@ RSpec.describe Controllers::Sessions do
 
     describe 'Nominal case' do
       before do
-        delete '/sessions/session_token', {
+        delete '/session_token', {
           app_key: 'test_key',
           session_id: session.token
         }
@@ -219,12 +219,12 @@ RSpec.describe Controllers::Sessions do
       end
     end
 
-    it_should_behave_like 'a route', 'delete', '/sessions/session_token'
+    it_should_behave_like 'a route', 'delete', '/session_token'
 
     describe '404 errors' do
       describe 'session not found' do
         before do
-          delete '/sessions/any_other_token', {
+          delete '/any_other_token', {
             app_key: 'test_key',
             session_id: session.token
           }
